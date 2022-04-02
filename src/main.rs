@@ -24,6 +24,7 @@ const HEIGHT: u32 = 600;
 fn main() -> Result<(), Error> {
     let md = read_object("../cube/monkey.obj").expect("Cannot read file");
     let mut main_obj = Transform::new();
+    main_obj.translate_self(0.0, 2.0, 0.0);
     main_obj.mesh = Some(md);
 
     let event_loop = EventLoop::new();
@@ -31,6 +32,7 @@ fn main() -> Result<(), Error> {
     let mut scene = Scene::new();
     scene.set_default_camera_position();
     scene.add_object(&main_obj);
+    scene.add_test_objects();
 
     let window = {
         let size = LogicalSize::new(WIDTH as f64, HEIGHT as f64);
@@ -69,39 +71,41 @@ fn main() -> Result<(), Error> {
                 return;
             }
 
+            const MOVE_BY: f64 = 0.7;
+
             if input.key_pressed(VirtualKeyCode::A) {
                 let obj = &mut scene.objects[0];
-                obj.translate_self(1.0, 0.0, 0.0)
+                obj.translate_self(MOVE_BY, 0.0, 0.0)
             }
 
             if input.key_pressed(VirtualKeyCode::Q) {
                 let obj = &mut scene.objects[0];
-                obj.translate_self(0.0, 1.0, 0.0)
+                obj.translate_self(0.0, MOVE_BY, 0.0)
             }
 
             if input.key_pressed(VirtualKeyCode::E) {
                 let obj = &mut scene.objects[0];
-                obj.translate_self(0.0, -1.0, 0.0)
+                obj.translate_self(0.0, -MOVE_BY, 0.0)
             }
 
             if input.key_pressed(VirtualKeyCode::D) {
                 let obj = &mut scene.objects[0];
-                obj.translate_self(-1.0, 0.0, 0.0)
+                obj.translate_self(-MOVE_BY, 0.0, 0.0)
             }
 
             if input.key_pressed(VirtualKeyCode::S) {
                 let obj = &mut scene.objects[0];
-                obj.translate_self(0.0, 0.0, 1.0)
+                obj.translate_self(0.0, 0.0, MOVE_BY)
             }
 
             if input.key_pressed(VirtualKeyCode::W) {
                 let obj = &mut scene.objects[0];
-                obj.translate_self(0.0, 0.0, -1.0)
+                obj.translate_self(0.0, 0.0, -MOVE_BY)
             }
 
             if input.key_pressed(VirtualKeyCode::W) {
                 let obj = &mut scene.objects[0];
-                obj.translate_self(0.0, 0.0, -1.0)
+                obj.translate_self(0.0, 0.0, -MOVE_BY)
             }
 
             if input.key_pressed(VirtualKeyCode::T) {

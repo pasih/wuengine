@@ -18,9 +18,10 @@ fn _ortho_matrix(w: f64, h: f64) -> Matrix4<f64> {
     );
 }
 
+// Check that far / near are calculated correctly (correct vector)
 fn perspective_matrix(angle: f64, w: f64, h: f64) -> Matrix4<f64> {
     let fov = 1.0 / f64::tan(angle.to_radians() / 2.0);
-    let aspect = 1.0; // w / h;
+    let aspect = w / h;
     let far = 3.0;
     let near = 0.5;
 
@@ -70,13 +71,20 @@ impl Scene {
         self.camera.base * p
     }
 
-    fn camera_to_screen(&self, w: f64, h: f64, p: Point4<f64>) -> (f64, f64) {
-        let transformed = perspective_matrix(90.0, w, h) * p;
+    fn camera_to_screen(&self, w: f64, h: f64, p: Point4<f64>) -> Option<(f64, f64)> {
+        let transformed = perspective_matrix(60.0, w, h) * p;
+
+        // TODO: Check clipping
+        // if ...
+        // {
+        //     return None;
+        // }
+
         let half_w = 0.5 * w;
         let half_h = 0.5 * h;
         let x = (transformed.x * w) / (2.0 * transformed.w) + half_w;
         let y = (transformed.y * h) / (2.0 * transformed.w) + half_h;
-        (x, y)
+        Some((x, y))
     }
 
     fn render_objects(&self, w: u64, h: u64) -> [[u8; 4]; 600 * 800] {
@@ -88,12 +96,18 @@ impl Scene {
                     for vert in &md.verts {
                         let wc = self.local_to_world(obj.to_owned(), *vert);
                         let cc = self.world_to_camera(wc);
-                        let xy = self.camera_to_screen(w as f64, h as f64, cc);
+                        let xy_opt = self.camera_to_screen(w as f64, h as f64, cc);
 
-                        let idx = xy.0.floor() + w as f64 * xy.1.floor();
+                        match xy_opt {
+                            Some(xy) => {
+                                let idx = xy.0.floor() + w as f64 * xy.1.floor();
 
-                        if (idx < 480000.0) {
-                            buf[idx as usize] = [0xff, 0x00, 0xff, 0xff];
+                                // TODO: remove hack check once there's clipping
+                                if idx < 480000.0 {
+                                    buf[idx as usize] = [0xff, 0x00, 0xff, 0xff];
+                                }
+                            }
+                            None => (),
                         }
                     }
                 }

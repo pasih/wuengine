@@ -34,7 +34,6 @@ pub fn read_object(filename: &str) -> io::Result<MeshData> {
             Err(_) => todo!(),
         }
     }
-    println!("{:?}", verts);
 
     Ok(MeshData { verts })
 }
